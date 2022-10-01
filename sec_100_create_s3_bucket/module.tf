@@ -16,11 +16,14 @@ resource "aws_s3_bucket_acl" "wellarchitectedlabs_bucket_1_acl" {
 resource "aws_s3_object" "index" {
   bucket = aws_s3_bucket.wellarchitectedlabs_bucket_1.id
   key    = "index.html"
-  source = "./resources/index.html"
+  source = "${path.module}/resources/index.html"
 }
 
 locals {
   s3_origin_id = "myS3Origin"
+}
+
+resource "aws_cloudfront_origin_access_identity" "identity" {
 }
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
@@ -29,7 +32,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     origin_id   = local.s3_origin_id
 
     s3_origin_config {
-      origin_access_identity = "origin-access-identity/cloudfront/ABCDEFG1234567"
+      origin_access_identity = aws_cloudfront_origin_access_identity.identity.cloudfront_access_identity_path
     }
   }
 
