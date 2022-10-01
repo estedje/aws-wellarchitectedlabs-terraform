@@ -18,7 +18,7 @@ resource "aws_s3_bucket_acl" "wellarchitectedlabs_bucket_1_acl" {
 ###################################
 resource "aws_s3_bucket_policy" "read_wellarchitectedlabs_bucket_1" {
   bucket = aws_s3_bucket.wellarchitectedlabs_bucket_1.id
-  policy = data.aws_iam_policy_document.read_wellarchitectedlabs_bucket_1_bucket.json
+  policy = data.aws_iam_policy_document.read_wellarchitectedlabs_bucket_1.json
 }
 
 resource "aws_s3_bucket_public_access_block" "wellarchitectedlabs_bucket_1_public_access_block" {
