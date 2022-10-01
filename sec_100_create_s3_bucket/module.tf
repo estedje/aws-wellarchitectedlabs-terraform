@@ -143,17 +143,17 @@ data "aws_iam_policy_document" "read_wellarchitectedlabs_bucket_1" {
 
     principals {
       type        = "AWS"
-      identifiers = [${aws_cloudfront_distribution.s3_distribution.arn}]
+      identifiers = [aws_cloudfront_distribution.s3_distribution.arn]
     }
   }
 
   statement {
     actions   = ["s3:ListBucket"]
-    resources = [${aws_s3_bucket.wellarchitectedlabs_bucket_1.arn}]
+    resources = [aws_s3_bucket.wellarchitectedlabs_bucket_1.arn]
 
     principals {
       type        = "AWS"
-      identifiers = [${aws_cloudfront_distribution.s3_distribution.arn}]
+      identifiers = [aws_cloudfront_distribution.s3_distribution.arn]
     }
   }
 }
