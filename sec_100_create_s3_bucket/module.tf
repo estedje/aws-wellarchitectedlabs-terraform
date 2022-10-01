@@ -1,10 +1,13 @@
 resource "aws_s3_bucket" "wellarchitectedlabs_bucket_1" {
   bucket = "wellarchitectedlabs-bucket-1"
-  versioning {
-    enabled = true
-  }
 }
 
+resource "aws_s3_bucket_versioning" "versioning_example" {
+  bucket = aws_s3_bucket.wellarchitectedlabs_bucket_1.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
 resource "aws_s3_bucket_acl" "wellarchitectedlabs_bucket_1_acl" {
   bucket = aws_s3_bucket.wellarchitectedlabs_bucket_1.id
   acl    = "private"
