@@ -2,7 +2,7 @@ resource "aws_s3_bucket" "wellarchitectedlabs_bucket_1" {
   bucket = "wellarchitectedlabs-bucket-1"
 }
 
-resource "aws_s3_bucket_versioning" "versioning_example" {
+resource "aws_s3_bucket_versioning" "wellarchitectedlabs_bucket_1_versioning" {
   bucket = aws_s3_bucket.wellarchitectedlabs_bucket_1.id
   versioning_configuration {
     status = "Enabled"
@@ -11,6 +11,22 @@ resource "aws_s3_bucket_versioning" "versioning_example" {
 resource "aws_s3_bucket_acl" "wellarchitectedlabs_bucket_1_acl" {
   bucket = aws_s3_bucket.wellarchitectedlabs_bucket_1.id
   acl    = "private"
+}
+
+###################################
+# S3 Bucket Policy
+###################################
+resource "aws_s3_bucket_policy" "read_wellarchitectedlabs_bucket_1" {
+  bucket = aws_s3_bucket.wellarchitectedlabs_bucket_1.id
+  policy = data.aws_iam_policy_document.read_wellarchitectedlabs_bucket_1_bucket.json
+}
+
+resource "aws_s3_bucket_public_access_block" "wellarchitectedlabs_bucket_1_public_access_block" {
+  bucket = aws_s3_bucket.wellarchitectedlabs_bucket_1.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 resource "aws_s3_object" "index" {
@@ -23,17 +39,19 @@ locals {
   s3_origin_id = "myS3Origin"
 }
 
-resource "aws_cloudfront_origin_access_identity" "identity" {
+resource "aws_cloudfront_origin_access_control" "origin_access_control" {
+  name                              = "wellarchitectedlabs_origin_access_control"
+  description                       = "wellarchitectedlabs_origin_access_control Policy"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
 }
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
     domain_name = aws_s3_bucket.wellarchitectedlabs_bucket_1.bucket_regional_domain_name
     origin_id   = local.s3_origin_id
-
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.identity.cloudfront_access_identity_path
-    }
+    origin_access_control_id = aws_cloudfront_origin_access_control.origin_access_control.id
   }
 
   enabled             = true
@@ -115,5 +133,27 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
   viewer_certificate {
     cloudfront_default_certificate = true
+  }
+}
+
+data "aws_iam_policy_document" "read_wellarchitectedlabs_bucket_1" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.wellarchitectedlabs_bucket_1.arn}/*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = [${aws_cloudfront_distribution.s3_distribution.arn}]
+    }
+  }
+
+  statement {
+    actions   = ["s3:ListBucket"]
+    resources = [${aws_s3_bucket.wellarchitectedlabs_bucket_1.arn}]
+
+    principals {
+      type        = "AWS"
+      identifiers = [${aws_cloudfront_distribution.s3_distribution.arn}]
+    }
   }
 }
