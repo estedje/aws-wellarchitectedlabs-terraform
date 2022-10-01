@@ -140,20 +140,28 @@ data "aws_iam_policy_document" "read_wellarchitectedlabs_bucket_1" {
   statement {
     actions   = ["s3:GetObject"]
     resources = ["${aws_s3_bucket.wellarchitectedlabs_bucket_1.arn}/*"]
-
     principals {
-      type        = "AWS"
-      identifiers = [aws_cloudfront_distribution.s3_distribution.arn]
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+    condition {
+      test     = "ForAnyValue:StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.s3_distribution.arn]
     }
   }
 
   statement {
     actions   = ["s3:ListBucket"]
-    resources = [aws_s3_bucket.wellarchitectedlabs_bucket_1.arn]
-
+    resources = ["${aws_s3_bucket.wellarchitectedlabs_bucket_1.arn}/*"]
     principals {
-      type        = "AWS"
-      identifiers = [aws_cloudfront_distribution.s3_distribution.arn]
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+    condition {
+      test     = "ForAnyValue:StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.s3_distribution.arn]
     }
   }
 }
