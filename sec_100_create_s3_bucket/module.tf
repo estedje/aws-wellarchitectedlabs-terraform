@@ -12,7 +12,7 @@ resource "aws_s3_bucket_acl" "wellarchitectedlabs_bucket_1_acl" {
 
 resource "aws_s3_object" "index" {
   bucket = aws_s3_bucket.wellarchitectedlabs_bucket_1.id
-  key    = "index"
+  key    = "index.html"
   source = "./resources/index.html"
 }
 
