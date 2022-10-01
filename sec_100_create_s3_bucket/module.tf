@@ -138,23 +138,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
 data "aws_iam_policy_document" "read_wellarchitectedlabs_bucket_1" {
   statement {
+    sid       = "PolicyForCloudFrontPrivateContent"
     actions   = ["s3:GetObject"]
     resources = ["${aws_s3_bucket.wellarchitectedlabs_bucket_1.arn}/*"]
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.s3_distribution.arn]
-    }
-  }
-
-  statement {
-    actions   = ["s3:ListBucket"]
-    resources = ["${aws_s3_bucket.wellarchitectedlabs_bucket_1.arn}/*"]
-    effect    = "Allow"
     principals {
       type        = "Service"
       identifiers = ["cloudfront.amazonaws.com"]
