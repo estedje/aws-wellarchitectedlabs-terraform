@@ -105,7 +105,7 @@ EOT
 
 resource "aws_iam_instance_profile" "instance_profile" {
   name = "WA-Lab-Instance-Profile"
-  role = ['aws_iam_role.instance_role.arn']
+  role = [aws_iam_role.instance_role.arn]
 }
 
 
@@ -113,9 +113,9 @@ resource "aws_iam_role" "instance_role" {
   name = "WA-Lab-InstanceRole"
   assume_role_policy = {
     Version = "2012-10-17"
-    Statement = [{'Effect': '"Allow"', 'Principal': {'Service': '"ec2.amazonaws.com"'}, 'Action': '"sts:AssumeRole"'}]
+    Statement = [{"Effect": "Allow", "Principal": {"Service": "ec2.amazonaws.com"}, "Action": "sts:AssumeRole"}]
   }
-  force_detach_policies = [{'PolicyName': '"S3PutObject"', 'PolicyDocument': {'Version': '"2012-10-17"', 'Statement': [{'Effect': '"Allow"', 'Action': '"s3:PutObject"', 'Resource': 'join("", ["arn:aws:s3:::", var.bucket_name, "/*"])'}]}}]
+  force_detach_policies = [{"PolicyName": "S3PutObject", "PolicyDocument": {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "s3:PutObject", "Resource": "join(", ["arn:aws:s3:::", var.bucket_name, "/*"])"}]}}]
 }
 
 
@@ -175,12 +175,12 @@ resource "aws_iam_role" "data_read_lambda_role" {
   name = "WA-Lab-DataReadLambdaRole"
   assume_role_policy = {
     Version = "2012-10-17"
-    Statement = [{'Effect': '"Allow"', 'Principal': {'Service': '"lambda.amazonaws.com"'}, 'Action': '"sts:AssumeRole"'}]       
+    Statement = [{"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]       
   }
-  managed_policy_arns = ['"arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"']
-  force_detach_policies = [{'PolicyName': '"LambdaPolicy"', 'PolicyDocument': {'Version': '"2012-10-17"', 'Statement': [{'Sid': 
-'"VisualEditor0"', 'Effect': '"Allow"', 'Action': '"s3:DeleteObject"', 'Resource': 'join("", ["arn:aws:s3:::", var.bucket_name, 
-"/*"])'}]}}]
+  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
+  force_detach_policies = [{"PolicyName": "LambdaPolicy", "PolicyDocument": {"Version": "2012-10-17", "Statement": [{"Sid": 
+"VisualEditor0", "Effect": "Allow", "Action": "s3:DeleteObject", "Resource": "join(", ["arn:aws:s3:::", var.bucket_name, 
+"/*"])"}]}}]
 }
 
 
@@ -188,11 +188,11 @@ resource "aws_iam_role" "ops_item_lambda_role" {
   name = "WA-Lab-OpsItemLambdaRole"
   assume_role_policy = {
     Version = "2012-10-17"
-    Statement = [{'Effect': '"Allow"', 'Principal': {'Service': '"lambda.amazonaws.com"'}, 'Action': '"sts:AssumeRole"'}]       
+    Statement = [{"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]       
   }
-  managed_policy_arns = ['"arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"']
-  force_detach_policies = [{'PolicyName': '"LambdaPolicy"', 'PolicyDocument': {'Version': '"2012-10-17"', 'Statement': [{'Sid': 
-'"VisualEditor0"', 'Effect': '"Allow"', 'Action': '"ssm:CreateOpsItem"', 'Resource': '"*"'}]}}]
+  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
+  force_detach_policies = [{"PolicyName": "LambdaPolicy", "PolicyDocument": {"Version": "2012-10-17", "Statement": [{"Sid": 
+"VisualEditor0", "Effect": "Allow", "Action": "ssm:CreateOpsItem", "Resource": "*"}]}}]
 }
 
 
@@ -201,7 +201,7 @@ resource "aws_lambda_permission" "data_read_lambda_permission" {
   function_name = aws_lambda_function.data_read_function.arn
   principal = "s3.amazonaws.com"
   source_account = data.aws_caller_identity.current.account_id
-  source_arn = join("", ["arn:aws:s3:::", var.bucket_name])
+  source_arn = join(", ["arn:aws:s3:::", var.bucket_name])
 }
 
 
