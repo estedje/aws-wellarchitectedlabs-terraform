@@ -1,0 +1,14 @@
+import os
+import boto3
+
+def lambda_handler(context, event):
+  s3 = boto3.client('s3')
+  response = s3.delete_object(
+  Bucket='${var.bucket_name}',
+  Key='data.txt'
+  )
+
+  print(response)
+
+  print('success')
+  return "File deleted"
