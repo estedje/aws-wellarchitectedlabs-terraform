@@ -5,27 +5,22 @@ data "aws_caller_identity" "current" {
 
 
 variable "availability_zone" {
-  description = The Availability Zone in which resources are launched.
+  description = "The Availability Zone in which resources are launched."
   type = string
   default = "eu-west-1c"
 }
 
 
 variable "bucket_name" {
-  description = A name for the S3 bucket that is created. Note that the namespace for S3 buckets is global so the bucket name you enter here has to be globally unique.
+  description = "A name for the S3 bucket that is created. Note that the namespace for S3 buckets is global so the bucket name you enter here has to be globally unique."
   type = string
   default = "dep-mon-bucket"
 }
 
 
-variable "latest_ami_id" {
-  type = string
-  default = /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
-}
-
 
 variable "notification_email" {
-  description = The email address to which CloudWatch Alarm notifications are published.
+  description = "The email address to which CloudWatch Alarm notifications are published."
   type = string
 }
 
@@ -41,12 +36,12 @@ resource "aws_subnet" "subnet" {
   cidr_block = "10.0.0.0/24"
   vpc_id = aws_vpc.vpc.arn
   map_public_ip_on_launch = "true"
-  tags = [{'Key': '"Name"', 'Value': '"WA-Lab-Subnet"'}]
+  tags = [{"Key": "Name", "Value": "WA-Lab-Subnet"}]
 }
 
 
 resource "aws_internet_gateway" "internet_gateway" {
-  tags = [{'Key': '"Name"', 'Value': '"WA-Lab-InternetGateway"'}]
+  tags = [{"Key": "Name", "Value": "WA-Lab-InternetGateway"}]
 }
 
 
@@ -57,7 +52,7 @@ resource "aws_vpn_gateway_attachment" "vpc_gateway_attachment" {
 
 resource "aws_route_table" "route_table" {
   vpc_id = aws_vpc.vpc.arn
-  tags = [{'Key': '"Name"', 'Value': '"WA-Lab-RouteTable"'}]
+  tags = [{"Key": "Name", "Value": "WA-Lab-RouteTable"}]
 }
 
 
@@ -104,7 +99,7 @@ echo "done" >> /home/ec2-user/data-write.sh
 chmod +x /home/ec2-user/data-write.sh
 sh /home/ec2-user/data-write.sh &
 EOT
-  tags = [{'Key': '"Name"', 'Value': '"WA-Lab-Instance"'}]
+  tags = [{"Key": "Name", "Value": "WA-Lab-Instance"}]
 }
 
 
