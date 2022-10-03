@@ -83,7 +83,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "new_config_bucket
     }  
   }
 }
-resource "aws_s3_bucket_public_access_block" "wellarchitectedlabs_bucket_1_public_access_block" {
+resource "aws_s3_bucket_public_access_block" "new_config_bucket_1_public_access_block" {
   bucket = aws_s3_bucket.new_config_bucket.id
   block_public_acls       = true
   block_public_policy     = true
