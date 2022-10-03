@@ -162,44 +162,18 @@ resource "aws_lambda_function" "data_read_function" {
   runtime = "python3.7"
   filename = "${path.module}/data_read_function/code.zip"
 }
-
+data "archive_file" "zip_the_python_code" {
+  type        = "zip"
+  source_dir  = "${path.module}/ops_item_function/"
+  output_path = "${path.module}/ops_item_function/code.zip"
+}
 
 resource "aws_lambda_function" "ops_item_function" {
   function_name = "WA-Lab-OpsItemFunction"
   handler = "index.lambda_handler"
   role = aws_iam_role.ops_item_lambda_role.arn
   runtime = "python3.7"
-  code_signing_config_arn = {
-    ZipFile = "import json
-import boto3
-
-def lambda_handler(event, context):
-    print(event)
-
-    client = boto3.client('ssm')
-
-    create_opsitem = client.create_ops_item(
-    Description='Datawrite service is failing to write data to S3',
-    OperationalData={
-        '/aws/resources': {
-            'Value': '[{\"arn\":\"arn:aws:s3:::${var.bucket_name}\"}]',
-            'Type': 'SearchableString'
-        }
-    },
-    Source='Lambda',
-    Category='Availability',
-    Title='S3 Data Writes failing',
-    Severity='2'
-)
-
-    print(create_opsitem)
-
-    return {
-        'statusCode': 200,
-        'body': json.dumps('OpsItem Created!')
-    }
-"
-  }
+  filename = "${path.module}/ops_item_function/code.zip"
 }
 
 
