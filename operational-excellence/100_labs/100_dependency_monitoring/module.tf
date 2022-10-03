@@ -141,7 +141,6 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 
 resource "aws_sns_topic" "sns_topic" {
   name = "WA-Lab-Dependency-Notification"
-  // CF Property(Subscription) = [{'Endpoint': 'var.notification_email', 'Protocol': '"email"'}]
 }
     
 resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
@@ -151,9 +150,9 @@ resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
 }
 
 data "archive_file" "zip_the_python_code" {
-  type        = "zip"
-  source_dir  = "${path.module}/data_read_function/"
-  output_path = "${path.module}/data_read_function/code.zip"
+  type         = "zip"
+  source_file  = "${path.module}/data_read_function/index.py"
+  output_path  = "${path.module}/data_read_function/code.zip"
 }
 resource "aws_lambda_function" "data_read_function" {
   function_name = "WA-Lab-DataReadFunction"
@@ -164,7 +163,7 @@ resource "aws_lambda_function" "data_read_function" {
 }
 data "archive_file" "zip_the_python_code" {
   type        = "zip"
-  source_dir  = "${path.module}/ops_item_function/"
+  source_file   = "${path.module}/ops_item_function/index.py"
   output_path = "${path.module}/ops_item_function/code.zip"
 }
 
