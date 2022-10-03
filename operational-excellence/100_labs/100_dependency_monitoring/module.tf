@@ -178,9 +178,7 @@ resource "aws_iam_role" "data_read_lambda_role" {
     Statement = [{"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]       
   }
   managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
-  force_detach_policies = [{"PolicyName": "LambdaPolicy", "PolicyDocument": {"Version": "2012-10-17", "Statement": [{"Sid": 
-"VisualEditor0", "Effect": "Allow", "Action": "s3:DeleteObject", "Resource": "join(", ["arn:aws:s3:::", var.bucket_name, 
-"/*"])"}]}}]
+  force_detach_policies = [{"PolicyName": "LambdaPolicy", "PolicyDocument": {"Version": "2012-10-17", "Statement": [{"Sid": "VisualEditor0", "Effect": "Allow", "Action": "s3:DeleteObject", "Resource": "join(", ["arn:aws:s3:::", var.bucket_name, "/*"])"}]}}]
 }
 
 
@@ -191,8 +189,7 @@ resource "aws_iam_role" "ops_item_lambda_role" {
     Statement = [{"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]       
   }
   managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
-  force_detach_policies = [{"PolicyName": "LambdaPolicy", "PolicyDocument": {"Version": "2012-10-17", "Statement": [{"Sid": 
-"VisualEditor0", "Effect": "Allow", "Action": "ssm:CreateOpsItem", "Resource": "*"}]}}]
+  force_detach_policies = [{"PolicyName": "LambdaPolicy", "PolicyDocument": {"Version": "2012-10-17", "Statement": [{"Sid": "VisualEditor0", "Effect": "Allow", "Action": "ssm:CreateOpsItem", "Resource": "*"}]}}]
 }
 
 
