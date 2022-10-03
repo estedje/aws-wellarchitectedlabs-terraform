@@ -73,23 +73,37 @@ resource "aws_route_table_association" "route_table_association" {
   subnet_id = aws_subnet.subnet.id
 }
 
+data "aws_ami" "amzn2" {
+  most_recent = true
 
+  filter {
+    name   = "name"
+    values = ["/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+    
 resource "aws_instance" "instance" {
-  // CF Property(ImageId) = var.latest_ami_id
+  ami = data.aws_ami.amzn2.id
   instance_type = "t2.micro"
   iam_instance_profile = aws_iam_instance_profile.instance_profile.arn
   subnet_id = aws_subnet.subnet.id
-  user_data = base64encode(join("", ["#!/bin/bash -x
-", "echo "test" >> /home/ec2-user/data.txt
-", "echo "#!/bin/bash" >> /home/ec2-user/data-write.sh
-", "echo "while true" >> /home/ec2-user/data-write.sh
-", "echo "do" >> /home/ec2-user/data-write.sh
-", "echo "aws s3api put-object --bucket ", var.bucket_name, " --key data.txt --body /home/ec2-user/data.txt" >> /home/ec2-user/data-write.sh
-", "echo "sleep 50" >> /home/ec2-user/data-write.sh
-", "echo "done" >> /home/ec2-user/data-write.sh
-", "chmod +x /home/ec2-user/data-write.sh
-", "sh /home/ec2-user/data-write.sh &
-"]))
+  user_data = <<EOT
+#!/bin/bash -x
+echo "test" >> /home/ec2-user/data.txt
+echo "#!/bin/bash" >> /home/ec2-user/data-write.sh
+echo "while true" >> /home/ec2-user/data-write.sh
+echo "do" >> /home/ec2-user/data-write.sh
+echo "aws s3api put-object --bucket ", var.bucket_name, " --key data.txt --body /home/ec2-user/data.txt" >> /home/ec2-user/data-write.sh
+echo "sleep 50" >> /home/ec2-user/data-write.sh
+echo "done" >> /home/ec2-user/data-write.sh
+chmod +x /home/ec2-user/data-write.sh
+sh /home/ec2-user/data-write.sh &
+EOT
   tags = [{'Key': '"Name"', 'Value': '"WA-Lab-Instance"'}]
 }
 
@@ -112,42 +126,41 @@ resource "aws_iam_role" "instance_role" {
 
 resource "aws_s3_bucket" "bucket" {
   bucket = var.bucket_name
-
-
-  replication_configuration {
-    // CF Property(LambdaConfigurations) = [{'Event': '"s3:ObjectCreated:Put"', 'Function': 'aws_lambda_function.data_read_function.arn'}]
-  }
 }
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.bucket.id
 
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.data_read_function.arn
+    events              = ["s3:ObjectCreated:Put"]
+  }
+
+  depends_on = [aws_lambda_permission.allow_bucket]
+}
+    
 
 resource "aws_sns_topic" "sns_topic" {
   name = "WA-Lab-Dependency-Notification"
   // CF Property(Subscription) = [{'Endpoint': 'var.notification_email', 'Protocol': '"email"'}]
 }
+    
+resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
+  topic_arn = aws_sns_topic.sns_topic.arn
+  protocol  = "email"
+  endpoint  = var.notification_email
+}
 
-
+data "archive_file" "zip_the_python_code" {
+  type        = "zip"
+  source_dir  = "${path.module}/data_read_function/"
+  output_path = "${path.module}/data_read_function/code.zip"
+}
 resource "aws_lambda_function" "data_read_function" {
   function_name = "WA-Lab-DataReadFunction"
   handler = "index.lambda_handler"
   role = aws_iam_role.data_read_lambda_role.arn
   runtime = "python3.7"
-  code_signing_config_arn = {
-    ZipFile = "import os
-import boto3
-
-def lambda_handler(context, event):
-  s3 = boto3.client('s3')
-  response = s3.delete_object(
-  Bucket='${var.bucket_name}',
-  Key='data.txt'
-  )
-
-  print(response)
-
-  print('success')
-  return "File deleted"
-"
-  }
+  filename = "${path.module}/data_read_function/code.zip"
 }
 
 
