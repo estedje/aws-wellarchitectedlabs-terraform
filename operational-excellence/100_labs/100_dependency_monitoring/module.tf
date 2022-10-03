@@ -7,12 +7,14 @@ data "aws_caller_identity" "current" {
 variable "availability_zone" {
   description = The Availability Zone in which resources are launched.
   type = string
+  default = "eu-west-1c"
 }
 
 
 variable "bucket_name" {
   description = A name for the S3 bucket that is created. Note that the namespace for S3 buckets is global so the bucket name you enter here has to be globally unique.
   type = string
+  default = "dep-mon-bucket"
 }
 
 
