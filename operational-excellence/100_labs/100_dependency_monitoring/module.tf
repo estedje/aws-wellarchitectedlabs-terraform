@@ -6,43 +6,43 @@ data "aws_caller_identity" "current" {
 
 variable "availability_zone" {
   description = "The Availability Zone in which resources are launched."
-  type = string
-  default = "eu-west-1c"
+  type        = string
+  default     = "eu-west-1c"
 }
 
 
 variable "bucket_name" {
   description = "A name for the S3 bucket that is created. Note that the namespace for S3 buckets is global so the bucket name you enter here has to be globally unique."
-  type = string
-  default = "dep-mon-bucket"
+  type        = string
+  default     = "dep-mon-bucket"
 }
 
 
 
 variable "notification_email" {
   description = "The email address to which CloudWatch Alarm notifications are published."
-  default = "example@examlpe.com"
-  type = string
+  default     = "example@examlpe.com"
+  type        = string
 }
 
 
 resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/16"
-  tags = [{"Key": "Name", "Value": "WA-Lab-VPC"}]
+  tags       = [{ "Key" : "Name", "Value" : "WA-Lab-VPC" }]
 }
 
 
 resource "aws_subnet" "subnet" {
-  availability_zone = var.availability_zone
-  cidr_block = "10.0.0.0/24"
-  vpc_id = aws_vpc.vpc.arn
+  availability_zone       = var.availability_zone
+  cidr_block              = "10.0.0.0/24"
+  vpc_id                  = aws_vpc.vpc.arn
   map_public_ip_on_launch = "true"
-  tags = [{"Key": "Name", "Value": "WA-Lab-Subnet"}]
+  tags                    = [{ "Key" : "Name", "Value" : "WA-Lab-Subnet" }]
 }
 
 
 resource "aws_internet_gateway" "internet_gateway" {
-  tags = [{"Key": "Name", "Value": "WA-Lab-InternetGateway"}]
+  tags = [{ "Key" : "Name", "Value" : "WA-Lab-InternetGateway" }]
 }
 
 
@@ -53,20 +53,20 @@ resource "aws_vpn_gateway_attachment" "vpc_gateway_attachment" {
 
 resource "aws_route_table" "route_table" {
   vpc_id = aws_vpc.vpc.arn
-  tags = [{"Key": "Name", "Value": "WA-Lab-RouteTable"}]
+  tags   = [{ "Key" : "Name", "Value" : "WA-Lab-RouteTable" }]
 }
 
 
 resource "aws_route" "route" {
-  route_table_id = aws_route_table.route_table.id
+  route_table_id         = aws_route_table.route_table.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id = aws_internet_gateway.internet_gateway.id
+  gateway_id             = aws_internet_gateway.internet_gateway.id
 }
 
 
 resource "aws_route_table_association" "route_table_association" {
   route_table_id = aws_route_table.route_table.id
-  subnet_id = aws_subnet.subnet.id
+  subnet_id      = aws_subnet.subnet.id
 }
 
 data "aws_ami" "amzn2" {
@@ -82,13 +82,13 @@ data "aws_ami" "amzn2" {
     values = ["hvm"]
   }
 }
-    
+
 resource "aws_instance" "instance" {
-  ami = data.aws_ami.amzn2.id
-  instance_type = "t2.micro"
+  ami                  = data.aws_ami.amzn2.id
+  instance_type        = "t2.micro"
   iam_instance_profile = aws_iam_instance_profile.instance_profile.arn
-  subnet_id = aws_subnet.subnet.id
-  user_data = <<EOT
+  subnet_id            = aws_subnet.subnet.id
+  user_data            = <<EOT
 #!/bin/bash -x
 echo "test" >> /home/ec2-user/data.txt
 echo "#!/bin/bash" >> /home/ec2-user/data-write.sh
@@ -100,7 +100,7 @@ echo "done" >> /home/ec2-user/data-write.sh
 chmod +x /home/ec2-user/data-write.sh
 sh /home/ec2-user/data-write.sh &
 EOT
-  tags = [{"Key": "Name", "Value": "WA-Lab-Instance"}]
+  tags                 = [{ "Key" : "Name", "Value" : "WA-Lab-Instance" }]
 }
 
 
@@ -121,7 +121,7 @@ data "aws_iam_policy_document" "instance-assume-role-policy" {
 }
 
 resource "aws_iam_role" "instance_role" {
-  name = "WA-Lab-InstanceRole"
+  name               = "WA-Lab-InstanceRole"
   assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
   inline_policy {
     name = "S3PutObject"
@@ -152,12 +152,12 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 
   depends_on = [aws_lambda_permission.allow_bucket]
 }
-    
+
 
 resource "aws_sns_topic" "sns_topic" {
   name = "WA-Lab-Dependency-Notification"
 }
-    
+
 resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
   topic_arn = aws_sns_topic.sns_topic.arn
   protocol  = "email"
@@ -165,29 +165,29 @@ resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
 }
 
 data "archive_file" "zip_the_python_code" {
-  type         = "zip"
-  source_file  = "${path.module}/data_read_function/index.py"
-  output_path  = "${path.module}/data_read_function/code.zip"
+  type        = "zip"
+  source_file = "${path.module}/data_read_function/index.py"
+  output_path = "${path.module}/data_read_function/code.zip"
 }
 resource "aws_lambda_function" "data_read_function" {
   function_name = "WA-Lab-DataReadFunction"
-  handler = "index.lambda_handler"
-  role = aws_iam_role.data_read_lambda_role.arn
-  runtime = "python3.7"
-  filename = "${path.module}/data_read_function/code.zip"
+  handler       = "index.lambda_handler"
+  role          = aws_iam_role.data_read_lambda_role.arn
+  runtime       = "python3.7"
+  filename      = "${path.module}/data_read_function/code.zip"
 }
 data "archive_file" "zip_the_python_code" {
   type        = "zip"
-  source_file   = "${path.module}/ops_item_function/index.py"
+  source_file = "${path.module}/ops_item_function/index.py"
   output_path = "${path.module}/ops_item_function/code.zip"
 }
 
 resource "aws_lambda_function" "ops_item_function" {
   function_name = "WA-Lab-OpsItemFunction"
-  handler = "index.lambda_handler"
-  role = aws_iam_role.ops_item_lambda_role.arn
-  runtime = "python3.7"
-  filename = "${path.module}/ops_item_function/code.zip"
+  handler       = "index.lambda_handler"
+  role          = aws_iam_role.ops_item_lambda_role.arn
+  runtime       = "python3.7"
+  filename      = "${path.module}/ops_item_function/code.zip"
 }
 
 data "aws_iam_policy_document" "data_read_lambda_policy" {
@@ -201,8 +201,8 @@ data "aws_iam_policy_document" "data_read_lambda_policy" {
 }
 
 resource "aws_iam_role" "data_read_lambda_role" {
-  name = "WA-Lab-DataReadLambdaRole"
-  assume_role_policy = data.aws_iam_policy_document.data_read_lambda_policy.json
+  name                = "WA-Lab-DataReadLambdaRole"
+  assume_role_policy  = data.aws_iam_policy_document.data_read_lambda_policy.json
   managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
   inline_policy {
     name = "LambdaPolicy"
@@ -230,8 +230,8 @@ data "aws_iam_policy_document" "ops_item_lambda_policy" {
 }
 
 resource "aws_iam_role" "ops_item_lambda_role" {
-  name = "WA-Lab-OpsItemLambdaRole"
-  assume_role_policy = data.aws_iam_policy_document.ops_item_lambda_policy.json  
+  name                = "WA-Lab-OpsItemLambdaRole"
+  assume_role_policy  = data.aws_iam_policy_document.ops_item_lambda_policy.json
   managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
   inline_policy {
     name = "LambdaPolicy"
@@ -245,26 +245,26 @@ resource "aws_iam_role" "ops_item_lambda_role" {
         },
       ]
     })
-  }  
+  }
 }
 
 
 resource "aws_lambda_permission" "data_read_lambda_permission" {
-  action = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.data_read_function.arn
-  principal = "s3.amazonaws.com"
+  action         = "lambda:InvokeFunction"
+  function_name  = aws_lambda_function.data_read_function.arn
+  principal      = "s3.amazonaws.com"
   source_account = data.aws_caller_identity.current.account_id
-  source_arn = aws_s3_bucket.bucket.arn
+  source_arn     = aws_s3_bucket.bucket.arn
 }
 
 
 output "sns_topic" {
   description = "The SNS Topic you subscribed to."
-  value = aws_sns_topic.sns_topic.id
+  value       = aws_sns_topic.sns_topic.id
 }
 
 
 output "data_read_function" {
   description = "The Lambda function that gets invoked when an object is uploaded to S3."
-  value = aws_lambda_function.data_read_function.arn
+  value       = aws_lambda_function.data_read_function.arn
 }
