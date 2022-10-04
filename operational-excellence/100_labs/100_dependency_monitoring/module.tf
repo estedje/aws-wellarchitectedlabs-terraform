@@ -95,8 +95,9 @@ resource "aws_instance" "instance" {
   instance_type        = "t2.micro"
   iam_instance_profile = aws_iam_instance_profile.instance_profile.name
   subnet_id            = aws_subnet.subnet.id
+  user_data_replace_on_change = true
   user_data            = <<EOT
-#!/bin/bash -x
+#!/bin/bash -x 
 echo "test" >> /home/ec2-user/data.txt
 echo "#!/bin/bash" >> /home/ec2-user/data-write.sh
 echo "while true" >> /home/ec2-user/data-write.sh
