@@ -196,14 +196,14 @@ data "archive_file" "zip_the_python_code_data_read_function" {
     content  = "${data.template_file.data_read_function_file.rendered}"
     filename = "index.py"
   }  
-  output_path = "${path.module}/data_read_function/code.zip"
+  output_path = "${path.module}/data_read_function/code." + sha256(data.template_file.data_read_function_file.rendered) + ".zip"
 }
 resource "aws_lambda_function" "data_read_function" {
   function_name = "WA-Lab-DataReadFunction"
   handler       = "index.lambda_handler"
   role          = aws_iam_role.data_read_lambda_role.arn
   runtime       = "python3.7"
-  filename      = "${path.module}/data_read_function/code.zip"
+  filename      = data.archive_file.zip_the_python_code_data_read_function.output_path
 }
 
 data "template_file" "ops_item_function_file" {
