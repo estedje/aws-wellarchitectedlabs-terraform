@@ -101,7 +101,7 @@ echo "test" >> /home/ec2-user/data.txt
 echo "#!/bin/bash" >> /home/ec2-user/data-write.sh
 echo "while true" >> /home/ec2-user/data-write.sh
 echo "do" >> /home/ec2-user/data-write.sh
-echo "aws s3api put-object --bucket ", var.bucket_name, " --key data.txt --body /home/ec2-user/data.txt" >> /home/ec2-user/data-write.sh
+echo "aws s3api put-object --bucket ${var.bucket_name}  --key data.txt --body /home/ec2-user/data.txt" >> /home/ec2-user/data-write.sh
 echo "sleep 50" >> /home/ec2-user/data-write.sh
 echo "done" >> /home/ec2-user/data-write.sh
 chmod +x /home/ec2-user/data-write.sh
