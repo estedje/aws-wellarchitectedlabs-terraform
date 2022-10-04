@@ -11,7 +11,6 @@ resource "aws_cloudwatch_metric_alarm" "WA-Lab-Dependency-test" {
         "Resource"     = "WA-Lab-DataReadFunction"
     }
     evaluation_periods        = 1
-    id                        = "WA-Lab-Dependency-Alarm"
     insufficient_data_actions = []
     metric_name               = "Invocations"
     namespace                 = "AWS/Lambda"
