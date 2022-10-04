@@ -81,7 +81,7 @@ data "aws_ami" "amzn2" {
 
   filter {
     name   = "name"
-    values = ["/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2*"]
+    values = ["amzn2-ami-hvm-*-gp2"]
   }
 
   filter {
