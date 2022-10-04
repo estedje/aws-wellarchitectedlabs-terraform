@@ -184,6 +184,10 @@ resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
   endpoint  = var.notification_email
 }
 
+resource "local_file" "data_read_function_file" {
+    content  = templatefile("${path.module}/data_read_function/index.py.tftpl", { var.bucket_name = var.bucket_name})"
+    filename = "${path.module}/data_read_function/index.py"
+}
 data "archive_file" "zip_the_python_code_data_read_function" {
   type        = "zip"
   source_file = "${path.module}/data_read_function/index.py"
@@ -196,6 +200,12 @@ resource "aws_lambda_function" "data_read_function" {
   runtime       = "python3.7"
   filename      = "${path.module}/data_read_function/code.zip"
 }
+
+resource "local_file" "ops_item_function_file" {
+    content  = templatefile("${path.module}/ops_item_function/index.py.tftpl", { var.bucket_name = var.bucket_name})"
+    filename = "${path.module}/data_read_function/index.py"
+}
+
 data "archive_file" "zip_the_python_code_ops_item_function" {
   type        = "zip"
   source_file = "${path.module}/ops_item_function/index.py"
