@@ -21,6 +21,7 @@ variable "bucket_name" {
 
 variable "notification_email" {
   description = "The email address to which CloudWatch Alarm notifications are published."
+  default = "example@examlpe.com"
   type = string
 }
 
@@ -109,13 +110,32 @@ resource "aws_iam_instance_profile" "instance_profile" {
 }
 
 
+data "aws_iam_policy_document" "instance-assume-role-policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "instance_role" {
   name = "WA-Lab-InstanceRole"
-  assume_role_policy = {
-    Version = "2012-10-17"
-    Statement = [{"Effect": "Allow", "Principal": {"Service": "ec2.amazonaws.com"}, "Action": "sts:AssumeRole"}]
+  assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
+  inline_policy {
+    name = "S3PutObject"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action   = ["s3:PutObject"]
+          Effect   = "Allow"
+          Resource = aws_s3_bucket.bucket.arn
+        },
+      ]
+    })
   }
-  force_detach_policies = [{"PolicyName": "S3PutObject", "PolicyDocument": {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "s3:PutObject", "Resource": "join(", ["arn:aws:s3:::", var.bucket_name, "/*"])"}]}}]
 }
 
 
@@ -170,26 +190,62 @@ resource "aws_lambda_function" "ops_item_function" {
   filename = "${path.module}/ops_item_function/code.zip"
 }
 
+data "aws_iam_policy_document" "data_read_lambda_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
 
 resource "aws_iam_role" "data_read_lambda_role" {
   name = "WA-Lab-DataReadLambdaRole"
-  assume_role_policy = {
-    Version = "2012-10-17"
-    Statement = [{"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]       
-  }
+  assume_role_policy = data.aws_iam_policy_document.data_read_lambda_policy.json
   managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
-  force_detach_policies = [{"PolicyName": "LambdaPolicy", "PolicyDocument": {"Version": "2012-10-17", "Statement": [{"Sid": "VisualEditor0", "Effect": "Allow", "Action": "s3:DeleteObject", "Resource": "join(", ["arn:aws:s3:::", var.bucket_name, "/*"])"}]}}]
+  inline_policy {
+    name = "LambdaPolicy"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action   = ["s3:DeleteObject"]
+          Effect   = "Allow"
+          Resource = aws_s3_bucket.bucket.arn
+        },
+      ]
+    })
+  }
 }
 
+data "aws_iam_policy_document" "ops_item_lambda_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
 
 resource "aws_iam_role" "ops_item_lambda_role" {
   name = "WA-Lab-OpsItemLambdaRole"
-  assume_role_policy = {
-    Version = "2012-10-17"
-    Statement = [{"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]       
-  }
+  assume_role_policy = data.aws_iam_policy_document.ops_item_lambda_policy.json  
   managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
-  force_detach_policies = [{"PolicyName": "LambdaPolicy", "PolicyDocument": {"Version": "2012-10-17", "Statement": [{"Sid": "VisualEditor0", "Effect": "Allow", "Action": "ssm:CreateOpsItem", "Resource": "*"}]}}]
+  inline_policy {
+    name = "LambdaPolicy"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action   = ["ssm:CreateOpsItem"]
+          Effect   = "Allow"
+          Resource = "*"
+        },
+      ]
+    })
+  }  
 }
 
 
@@ -198,7 +254,7 @@ resource "aws_lambda_permission" "data_read_lambda_permission" {
   function_name = aws_lambda_function.data_read_function.arn
   principal = "s3.amazonaws.com"
   source_account = data.aws_caller_identity.current.account_id
-  source_arn = join(", ["arn:aws:s3:::", var.bucket_name])
+  source_arn = aws_s3_bucket.bucket.arn
 }
 
 
