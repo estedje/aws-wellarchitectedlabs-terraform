@@ -37,7 +37,7 @@ resource "aws_vpc" "vpc" {
 resource "aws_subnet" "subnet" {
   availability_zone       = var.availability_zone
   cidr_block              = "10.0.0.0/24"
-  vpc_id                  = aws_vpc.vpc.arn
+  vpc_id                  = aws_vpc.vpc.id
   map_public_ip_on_launch = "true"
   tags = {
     Name = "WA-Lab-Subnet"    
@@ -57,7 +57,7 @@ resource "aws_internet_gateway_attachment" "vpc_gateway_attachment" {
 }
 
 resource "aws_route_table" "route_table" {
-  vpc_id = aws_vpc.vpc.arn
+  vpc_id = aws_vpc.vpc.id
   tags = {
     Name = "WA-Lab-RouteTable"    
   }
@@ -114,8 +114,8 @@ EOT
 
 
 resource "aws_iam_instance_profile" "instance_profile" {
-  name = "WA_Lab_Instance_Profile"
-  role = aws_iam_role.instance_role.arn
+  name = "WALab_IP"
+  role = aws_iam_role.instance_role.name
 }
 
 
