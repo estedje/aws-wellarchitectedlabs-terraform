@@ -6,4 +6,5 @@
 #}
 module "dependency_monitoring" {
   source = "./operational-excellence/100_labs/100_dependency_monitoring"
+  notification_email = var.notification_email
 }
