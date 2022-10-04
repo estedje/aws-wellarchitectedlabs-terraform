@@ -25,6 +25,14 @@ variable "notification_email" {
   type        = string
 }
 
+resource "tls_private_key" "example_ssh" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+resource "aws_key_pair" "deployer" {
+  key_name   = "deployer-key"
+  public_key = tls_private_key.example_ssh.public_key_openssh
+}
 
 resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/16"
@@ -96,6 +104,7 @@ resource "aws_instance" "instance" {
   iam_instance_profile = aws_iam_instance_profile.instance_profile.name
   subnet_id            = aws_subnet.subnet.id
   user_data_replace_on_change = true
+  key_name             = aws_key_pair.deployer.key_name
   user_data            = <<EOT
 #!/bin/bash -x 
 echo "test" >> /home/ec2-user/data.txt
