@@ -251,7 +251,7 @@ resource "aws_iam_role" "data_read_lambda_role" {
         {
           Action   = ["s3:DeleteObject"]
           Effect   = "Allow"
-          Resource = aws_s3_bucket.bucket.arn
+          Resource = "${aws_s3_bucket.bucket.arn}/*"
         },
       ]
     })
