@@ -164,7 +164,7 @@ resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
   endpoint  = var.notification_email
 }
 
-data "archive_file" "zip_the_python_code" {
+data "archive_file" "zip_the_python_code_data_read_function" {
   type        = "zip"
   source_file = "${path.module}/data_read_function/index.py"
   output_path = "${path.module}/data_read_function/code.zip"
@@ -176,7 +176,7 @@ resource "aws_lambda_function" "data_read_function" {
   runtime       = "python3.7"
   filename      = "${path.module}/data_read_function/code.zip"
 }
-data "archive_file" "zip_the_python_code" {
+data "archive_file" "zip_the_python_code_ops_item_function" {
   type        = "zip"
   source_file = "${path.module}/ops_item_function/index.py"
   output_path = "${path.module}/ops_item_function/code.zip"
