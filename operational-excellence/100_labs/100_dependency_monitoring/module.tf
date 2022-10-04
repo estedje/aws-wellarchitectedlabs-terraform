@@ -51,11 +51,10 @@ resource "aws_internet_gateway" "internet_gateway" {
   }
 }
 
-
-resource "aws_vpn_gateway_attachment" "vpc_gateway_attachment" {
-  vpc_id = aws_vpc.vpc.arn
+resource "aws_internet_gateway_attachment" "vpc_gateway_attachment" {
+  internet_gateway_id = aws_internet_gateway.internet_gateway.id
+  vpc_id              = aws_vpc.vpc.id
 }
-
 
 resource "aws_route_table" "route_table" {
   vpc_id = aws_vpc.vpc.arn
@@ -152,6 +151,7 @@ resource "aws_iam_role" "instance_role" {
 resource "aws_s3_bucket" "bucket" {
   bucket = var.bucket_name
 }
+
 resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = aws_s3_bucket.bucket.id
 
@@ -160,7 +160,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     events              = ["s3:ObjectCreated:Put"]
   }
 
-  depends_on = [aws_lambda_permission.allow_bucket]
+  depends_on = [aws_lambda_permission.data_read_lambda_permission]
 }
 
 
