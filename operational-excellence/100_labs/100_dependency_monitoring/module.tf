@@ -93,7 +93,7 @@ data "aws_ami" "amzn2" {
 resource "aws_instance" "instance" {
   ami                  = data.aws_ami.amzn2.id
   instance_type        = "t2.micro"
-  iam_instance_profile = aws_iam_instance_profile.instance_profile.arn
+  iam_instance_profile = aws_iam_instance_profile.instance_profile.name
   subnet_id            = aws_subnet.subnet.id
   user_data            = <<EOT
 #!/bin/bash -x
