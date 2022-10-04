@@ -22,7 +22,7 @@ resource "aws_s3_bucket_policy" "read_wellarchitectedlabs_bucket_1" {
 }
 
 resource "aws_s3_bucket_public_access_block" "wellarchitectedlabs_bucket_1_public_access_block" {
-  bucket = aws_s3_bucket.wellarchitectedlabs_bucket_1.id
+  bucket                  = aws_s3_bucket.wellarchitectedlabs_bucket_1.id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
@@ -49,8 +49,8 @@ resource "aws_cloudfront_origin_access_control" "origin_access_control" {
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
-    domain_name = aws_s3_bucket.wellarchitectedlabs_bucket_1.bucket_regional_domain_name
-    origin_id   = local.s3_origin_id
+    domain_name              = aws_s3_bucket.wellarchitectedlabs_bucket_1.bucket_regional_domain_name
+    origin_id                = local.s3_origin_id
     origin_access_control_id = aws_cloudfront_origin_access_control.origin_access_control.id
   }
 
