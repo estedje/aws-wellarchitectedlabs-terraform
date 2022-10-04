@@ -196,7 +196,7 @@ data "archive_file" "zip_the_python_code_data_read_function" {
     content  = "${data.template_file.data_read_function_file.rendered}"
     filename = "index.py"
   }  
-  output_path = format("%s/data_read_function/code.%s.zip",${path.module},sha256(data.template_file.data_read_function_file.rendered))
+  output_path = format("%s/data_read_function/code.%s.zip",path.module,sha256(data.template_file.data_read_function_file.rendered))
 }
 resource "aws_lambda_function" "data_read_function" {
   function_name = "WA-Lab-DataReadFunction"
