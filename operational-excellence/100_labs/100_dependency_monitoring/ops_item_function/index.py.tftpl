@@ -10,7 +10,7 @@ def lambda_handler(event, context):
     Description='Datawrite service is failing to write data to S3',
     OperationalData={
         '/aws/resources': {
-            'Value': '[{\"arn\":\"arn:aws:s3:::${var.bucket_name}\"}]',
+            'Value': '[{\"arn\":\"arn:aws:s3:::${bucket_name}\"}]',
             'Type': 'SearchableString'
         }
     },
