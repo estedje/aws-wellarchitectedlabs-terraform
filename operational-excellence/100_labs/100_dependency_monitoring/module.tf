@@ -114,7 +114,7 @@ EOT
 
 
 resource "aws_iam_instance_profile" "instance_profile" {
-  name = "WA-Lab-Instance-Profile"
+  name = "WA_Lab_Instance_Profile"
   role = aws_iam_role.instance_role.arn
 }
 
