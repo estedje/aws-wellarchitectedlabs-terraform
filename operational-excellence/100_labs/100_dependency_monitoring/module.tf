@@ -150,7 +150,7 @@ resource "aws_iam_role" "instance_role" {
         {
           Action   = ["s3:PutObject"]
           Effect   = "Allow"
-          Resource = aws_s3_bucket.bucket.arn
+          Resource = "${aws_s3_bucket.bucket.arn}/*"
         },
       ]
     })
