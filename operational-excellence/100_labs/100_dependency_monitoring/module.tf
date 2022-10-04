@@ -28,7 +28,9 @@ variable "notification_email" {
 
 resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/16"
-  tags       = [{ "Key" : "Name", "Value" : "WA-Lab-VPC" }]
+  tags = {
+    Name = "WA-Lab-VPC"    
+  }
 }
 
 
@@ -37,12 +39,16 @@ resource "aws_subnet" "subnet" {
   cidr_block              = "10.0.0.0/24"
   vpc_id                  = aws_vpc.vpc.arn
   map_public_ip_on_launch = "true"
-  tags                    = [{ "Key" : "Name", "Value" : "WA-Lab-Subnet" }]
+  tags = {
+    Name = "WA-Lab-Subnet"    
+  }
 }
 
 
 resource "aws_internet_gateway" "internet_gateway" {
-  tags = [{ "Key" : "Name", "Value" : "WA-Lab-InternetGateway" }]
+  tags = {
+    Name = "WA-Lab-InternetGateway"    
+  }
 }
 
 
@@ -53,7 +59,9 @@ resource "aws_vpn_gateway_attachment" "vpc_gateway_attachment" {
 
 resource "aws_route_table" "route_table" {
   vpc_id = aws_vpc.vpc.arn
-  tags   = [{ "Key" : "Name", "Value" : "WA-Lab-RouteTable" }]
+  tags = {
+    Name = "WA-Lab-RouteTable"    
+  }
 }
 
 
@@ -100,13 +108,15 @@ echo "done" >> /home/ec2-user/data-write.sh
 chmod +x /home/ec2-user/data-write.sh
 sh /home/ec2-user/data-write.sh &
 EOT
-  tags                 = [{ "Key" : "Name", "Value" : "WA-Lab-Instance" }]
+  tags = {
+    Name = "WA-Lab-Instance"    
+  }
 }
 
 
 resource "aws_iam_instance_profile" "instance_profile" {
   name = "WA-Lab-Instance-Profile"
-  role = [aws_iam_role.instance_role.arn]
+  role = aws_iam_role.instance_role.arn
 }
 
 
