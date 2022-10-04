@@ -217,8 +217,8 @@ data "archive_file" "zip_the_python_code_ops_item_function" {
   source {
     content  = "${data.template_file.ops_item_function_file.rendered}"
     filename = "index.py"
-  }  
-  output_path = "${path.module}/ops_item_function/code.zip"
+  } 
+  output_path = format("%s/ops_item_function/code.%s.zip",path.module,substr(sha256(data.template_file.ops_item_function_file.rendered),0,5))
 }
 
 resource "aws_lambda_function" "ops_item_function" {
@@ -226,7 +226,7 @@ resource "aws_lambda_function" "ops_item_function" {
   handler       = "index.lambda_handler"
   role          = aws_iam_role.ops_item_lambda_role.arn
   runtime       = "python3.7"
-  filename      = "${path.module}/ops_item_function/code.zip"
+  filename      = data.archive_file.zip_the_python_code_ops_item_function.output_path
 }
 
 data "aws_iam_policy_document" "data_read_lambda_policy" {
