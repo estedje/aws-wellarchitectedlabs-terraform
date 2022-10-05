@@ -82,13 +82,13 @@ resource "aws_route_table" "PublicRouteTable2" {
 resource "aws_route" "PublicRoute1" {
   route_table_id         = aws_route_table.PublicRouteTable1.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.internet_gateway.id
+  gateway_id             = aws_internet_gateway.IGW.id
   depends_on = [aws_internet_gateway_attachment.IGWAttach]
 }
 resource "aws_route" "PublicRoute2" {
   route_table_id         = aws_route_table.PublicRouteTable2.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.internet_gateway.id
+  gateway_id             = aws_internet_gateway.IGW.id
   depends_on = [aws_internet_gateway_attachment.IGWAttach]
 }
 
@@ -113,14 +113,14 @@ resource "aws_route_table" "PrivateRouteTable2" {
 resource "aws_route" "PrivateRoute1" {
   route_table_id         = aws_route_table.PrivateRouteTable1.id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id             = aws_internet_gateway.NatGateway.id
+  nat_gateway_id             = aws_nat_gateway.NatGateway.id
   depends_on = [aws_internet_gateway_attachment.IGWAttach]
 }
 
 resource "aws_route" "PrivateRoute2" {
   route_table_id         = aws_route_table.PrivateRouteTable2.id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id             = aws_internet_gateway.NatGateway.id
+  nat_gateway_id             = aws_nat_gateway.NatGateway.id
   depends_on = [aws_internet_gateway_attachment.IGWAttach]
 }
 
