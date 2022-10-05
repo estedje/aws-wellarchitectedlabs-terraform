@@ -1,3 +1,7 @@
+variable "cloud9_owner" {
+  description = "Arn of the owner of cloud9-env"
+  type        = string
+}
 
 variable "availability_zone" {
   description = "The Availability Zone in which resources are launched."
@@ -145,5 +149,5 @@ resource "aws_cloud9_environment_ec2" "Cloud9" {
   image_id = "amazonlinux-2-x86_64"
   automatic_stop_time_minutes = 30
   subnet_id = aws_subnet.PublicSubnet1.id 
-  
+  owner_arn = var.cloud9_owner
 }
