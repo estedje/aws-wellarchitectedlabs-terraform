@@ -9,5 +9,6 @@
 #  notification_email = var.notification_email
 #}
 module "automating_operations" {
-  source = "./operational-excellence/200_labs/200_automating_operations_with_playbooks_and_runbooks/"
+  source = "./operational-excellence/200_labs/200_automating_operations_with_playbooks_and_runbooks/"  
+  cloud9_owner = var.cloud9_owner
 }  
