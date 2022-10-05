@@ -52,6 +52,9 @@ resource "aws_subnet" "PrivateSubnet2" {
 }
 
 resource "aws_internet_gateway" "IGW" {
+  tags = {
+    Name = "walab-ops-base-resources-InternetGateway"    
+  }  
 }
 
 resource "aws_internet_gateway_attachment" "IGWAttach" {
