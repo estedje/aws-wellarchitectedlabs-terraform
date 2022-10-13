@@ -36,11 +36,6 @@ variable "s3_bucket_policy_explicit_deny" {
 }
 
 
-variable "s3_access_logs_bucket_name" {
-  description = "Optional: The name of an existing S3 bucket for storing S3 Access Logs. Leave blank for no S3 access logs."
-  type        = string
-}
-
 
 variable "cloud_trail_bucket_name" {
   description = "The name of the new S3 bucket to create for CloudTrail to send logs to. Can contain only lower-case characters, numbers, periods, and dashes.Each label in the bucket name must start with a lowercase letter or number."
