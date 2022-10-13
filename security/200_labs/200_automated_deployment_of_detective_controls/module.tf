@@ -329,12 +329,12 @@ resource "aws_iam_role" "cloud_trail_cloud_watch_logs_role" {
         {
           Action   = ["logs:CreateLogStream"]
           Effect   = "Allow"
-          Resource = aws_cloudwatch_log_group.cloud_trail_cw_logs_group.arn
+          Resource = "${aws_cloudwatch_log_group.cloud_trail_cw_logs_group.arn}:*"
         },
         {
           Action   = ["logs:PutLogEvents"]
           Effect   = "Allow"
-          Resource = aws_cloudwatch_log_group.cloud_trail_cw_logs_group.arn
+          Resource = "${aws_cloudwatch_log_group.cloud_trail_cw_logs_group.arn}:*"
         },
       ]
     })
