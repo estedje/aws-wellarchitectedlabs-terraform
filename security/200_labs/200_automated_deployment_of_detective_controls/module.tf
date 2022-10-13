@@ -102,33 +102,100 @@ variable "guard_duty_email_address" {
 
 resource "aws_kms_key" "cloud_trail_kms_key" {
   description = "KMS Key for Cloudtrail to use to encrypt logs stored in S3"
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Id      = "Key policy created by CloudTrail"
-    Statement = [
-      {
-        Sid       = "Enable IAM User Permissions"
-        Action    = ["kms:*"]
-        Effect    = "Allow"
-        Resource  = "*"
-        Principal = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
-      },
-      {
-        Sid       = "Allow CloudTrail to encrypt logs"
-        Service   = ["cloudtrail.amazonaws.com"]
-        Action    = ["kms:GenerateDataKey*"]
-        Effect    = "Allow"
-        Resource  = "*"
-        Principal = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
-        Condition = {
-          StringLike = {
-            "kms:EncryptionContext:aws:cloudtrail:arn" = "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
-          }
+  policy = data.aws_iam_policy_document.cloud_trail_kms_key_policy.json
+}
 
-        }
-      },
-    ]
-  })
+data "aws_iam_policy_document" "cloud_trail_kms_key_policy" {
+  statement {
+    sid       = "EnableIAMUserPermissions"
+    actions    = ["kms:*"]
+    effect    = "Allow"
+    resources  = ["*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+  statement {
+    sid       = "Allow CloudTrail to encrypt logs"
+    actions   = ["kms:GenerateDataKey*"]
+    resources = ["*"]
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+    condition {
+      test     = "StringLike"
+      variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+      values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
+    }
+  }
+  statement {
+    sid       = "Allow CloudTrail to describe key"
+    actions   = ["kms:DescribeKey"]
+    resources = ["*"]
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+  }
+  statement {
+    sid       = "Allow principals in the account to decrypt log files"
+    actions   = ["kms:Decrypt","kms:ReEncryptFrom"]
+    resources = ["*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "kms:CallerAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+    condition {
+      test     = "StringLike"
+      variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+      values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
+    }
+  }
+  statement {
+    sid       = "Allow alias creation during setup"
+    actions   = ["kms:CreateAlias"]
+    resources = ["*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "kms:ViaService"
+      values   = ["ec2.${data.aws_region.current.name}.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "kms:CallerAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
+  statement {
+    sid       = "Enable cross account log decryption"
+    actions   = ["kms:Decrypt","kms:ReEncryptFrom"]
+    resources = ["*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    condition {
+      test     = "StringLike"
+      variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+      values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "kms:CallerAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
 }
 
 resource "aws_s3_bucket" "cloud_trail_destination_bucket" {
@@ -321,6 +388,7 @@ resource "aws_config_delivery_channel" "config_delivery_channel" {
     delivery_frequency = var.config_snapshot_frequency
   }
   s3_bucket_name = aws_s3_bucket.config_bucket.id
+  depends_on     = [aws_config_configuration_recorder.config_recorder]
 }
 
 
