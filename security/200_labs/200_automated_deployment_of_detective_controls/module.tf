@@ -102,15 +102,15 @@ variable "guard_duty_email_address" {
 
 resource "aws_kms_key" "cloud_trail_kms_key" {
   description = "KMS Key for Cloudtrail to use to encrypt logs stored in S3"
-  policy = aws_iam_policy_document.cloud_trail_kms_key_policy.json
+  policy = data.aws_iam_policy_document.cloud_trail_kms_key_policy.json
 }
 
 data "aws_iam_policy_document" "cloud_trail_kms_key_policy" {
   statement {
     sid       = "EnableIAMUserPermissions"
-    action    = ["kms:*"]
+    actions    = ["kms:*"]
     effect    = "Allow"
-    resource  = "*"
+    resources  = "*"
     principals {
       type        = "AWS"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
