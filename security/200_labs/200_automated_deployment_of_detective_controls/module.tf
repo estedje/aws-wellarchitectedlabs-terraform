@@ -293,7 +293,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
 resource "aws_cloudtrail" "cloud_trail_destination_trail" {
   name                       = "default"
   s3_bucket_name             = aws_s3_bucket.cloud_trail_destination_bucket.id
-  cloud_watch_logs_group_arn =  cloud_watch_logs_group_arn = "${aws_cloudwatch_log_group.cloud_trail_cw_logs_group.arn}:*"
+  cloud_watch_logs_group_arn = "${aws_cloudwatch_log_group.cloud_trail_cw_logs_group.arn}:*"
   cloud_watch_logs_role_arn  = aws_iam_role.cloud_trail_cloud_watch_logs_role.arn
   enable_log_file_validation = true
   event_selector {
