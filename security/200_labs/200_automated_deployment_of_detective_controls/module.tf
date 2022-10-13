@@ -319,6 +319,7 @@ resource "aws_cloudwatch_log_group" "cloud_trail_cw_logs_group" {
 
 
 resource "aws_iam_role" "cloud_trail_cloud_watch_logs_role" {
+  name = "cloud_trail_cloud_watch_logs_role"
   assume_role_policy = data.aws_iam_policy_document.cloudtrail-assume-role-policy.json
   inline_policy {
     name = "CloudtrailInteractionPolicy"
@@ -351,6 +352,7 @@ data "aws_iam_policy_document" "cloudtrail-assume-role-policy" {
 
 
 resource "aws_iam_role" "config_role" {
+  name = "config_role"
   assume_role_policy  = data.aws_iam_policy_document.config-assume-role-policy.json
   managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"]
   path                = "/service-role/"
