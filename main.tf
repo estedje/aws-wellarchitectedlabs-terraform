@@ -13,5 +13,5 @@
 #  cloud9_owner = var.cloud9_owner
 #}
 module "automated_deployment_of_detective_controls" {
-  source = "./operational-excellence/200_labs/200_automating_operations_with_playbooks_and_runbooks/"
+  source = "./security/200_labs/200_automated_deployment_of_detective_controls/"
 }
