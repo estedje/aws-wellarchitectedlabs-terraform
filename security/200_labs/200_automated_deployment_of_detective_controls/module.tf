@@ -293,7 +293,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
 resource "aws_cloudtrail" "cloud_trail_destination_trail" {
   name                       = "default"
   s3_bucket_name             = aws_s3_bucket.cloud_trail_destination_bucket.id
-  cloud_watch_logs_group_arn = aws_cloudwatch_log_group.cloud_trail_cw_logs_group.arn
+  cloud_watch_logs_group_arn =  cloud_watch_logs_group_arn = "${aws_cloudwatch_log_group.cloud_trail_cw_logs_group.arn}:*"
   cloud_watch_logs_role_arn  = aws_iam_role.cloud_trail_cloud_watch_logs_role.arn
   enable_log_file_validation = true
   event_selector {
@@ -308,6 +308,8 @@ resource "aws_cloudtrail" "cloud_trail_destination_trail" {
   include_global_service_events = true
   is_multi_region_trail         = true
   kms_key_id                    = aws_kms_key.cloud_trail_kms_key.arn
+  depends_on = [
+    aws_cloudwatch_log_group.cloud_trail_cw_logs_group]
 }
 
 
@@ -350,7 +352,7 @@ data "aws_iam_policy_document" "cloudtrail-assume-role-policy" {
 
 resource "aws_iam_role" "config_role" {
   assume_role_policy  = data.aws_iam_policy_document.config-assume-role-policy.json
-  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSConfigRole"]
+  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"]
   path                = "/service-role/"
   inline_policy {
     name = "ConfigServiceS3"
