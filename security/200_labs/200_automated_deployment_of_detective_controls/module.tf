@@ -159,7 +159,7 @@ data "aws_iam_policy_document" "cloud_trail_kms_key_policy" {
     }
   }
   statement {
-    sid       = "Allow principals in the account to decrypt log files"
+    sid       = "Allow alias creation during setup"
     actions   = ["kms:CreateAlias"]
     resources = ["*"]
     principals {
