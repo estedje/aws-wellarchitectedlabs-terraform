@@ -110,7 +110,7 @@ data "aws_iam_policy_document" "cloud_trail_kms_key_policy" {
     sid       = "EnableIAMUserPermissions"
     actions    = ["kms:*"]
     effect    = "Allow"
-    resources  = "*"
+    resources  = ["*"]
     principals {
       type        = "AWS"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
